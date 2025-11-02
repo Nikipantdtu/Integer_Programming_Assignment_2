@@ -1,6 +1,5 @@
 using JuMP
 using GLPK
-using Random
 using Plots
 using Printf
 
@@ -8,14 +7,14 @@ using Printf
 # v_i: volumes of containers
 v = [400, 450, 520, 330, 400, 350, 250, 300, 280, 310, 340, 290, 275, 180, 310]
 
-# a_i: initial amount of liquid in containers 
+# a_i: initial amount of liquid in containers
 a = [290, 240, 210, 300, 175, 190, 95, 190, 210, 80, 115, 95, 260, 140, 210]
 
 n = length(v)  # number of containers
-    
+
 modelFull = Model(GLPK.Optimizer)
 modelRAss = Model(GLPK.Optimizer)
-modelRKS =  Model(GLPK.Optimizer)
+modelRKS = Model(GLPK.Optimizer)
 
 @variable(modelFull, y[1:n], Bin)
 @variable(modelFull, x[i=1:n, j=1:n; i != j], Bin)
@@ -26,14 +25,15 @@ modelRKS =  Model(GLPK.Optimizer)
 
 optimize!(modelFull)
 println("Optimal Objective Value: $(objective_value(modelFull))")
+
+# integer optimum from modelFull
+opt_int = objective_value(modelFull)
+
 relax_integrality(modelFull)
 optimize!(modelFull)
 println("Optimal Value LP Relaxation: $(round(objective_value(modelFull), digits=2))")
 
-lp_relax = objective_value(modelFull)   
-
-# integer optimum from modelFull
-opt_int = objective_value(modelFull)
+lp_relax = objective_value(modelFull)
 
 
 ## Relaxed Assignment Constraints (geom, dim, polyak all together)
